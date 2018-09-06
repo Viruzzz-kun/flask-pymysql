@@ -1,19 +1,17 @@
-Flask-MySQLdb
+Flask-pymysql
 ================
 
-[![Build Status](https://travis-ci.org/admiralobvious/flask-mysqldb.svg?branch=master)](https://travis-ci.org/admiralobvious/flask-mysqldb)
-
-Flask-MySQLdb provides MySQL connection for Flask.
+Flask-pymysql provides MySQL connection for Flask.
 
 Quickstart
 ----------
 
-First, install Flask-MySQLdb:
+First, install Flask-pymysql:
     
     $ pip install flask-mysqldb
     
-Flask-MySQLdb depends, and will install for you, recent versions of Flask
-(0.10.1 or later) and [mysqlclient](https://github.com/PyMySQL/mysqlclient-python). Flask-MySQLdb is compatible
+Flask-pymysql depends, and will install for you, recent versions of Flask
+(0.10.1 or later) and [mysqlclient](https://github.com/PyMySQL/mysqlclient-python). Flask-pymysql is compatible
 with and tested on Python 2.7, 3.4, 3.5 and 3.6.
 
 Next, add a ``MySQL`` instance to your code:
@@ -46,11 +44,11 @@ Other configuration directives can be found [here](http://flask-mysqldb.readthed
 
 Why
 ---
-Why would you want to use this extension versus just using MySQLdb by itself? The only reason is that the extension was made using Flask's best pratices in relation to resources that need caching on the [app context](http://flask.pocoo.org/docs/0.12/appcontext/#context-usage). What that means is that the extension will manage creating and teardown the connection to MySQL for you while with if you were just using MySQLdb you would have to do it yourself.
+Why would you want to use this extension versus just using pymysql by itself? The only reason is that the extension was made using Flask's best pratices in relation to resources that need caching on the [app context](http://flask.pocoo.org/docs/0.12/appcontext/#context-usage). What that means is that the extension will manage creating and teardown the connection to MySQL for you while with if you were just using pymysql you would have to do it yourself.
 
 
 Resources
 ---------
 
 - [Documentation](http://flask-mysqldb.readthedocs.org/en/latest/)
-- [PyPI](https://pypi.python.org/pypi/Flask-MySQLdb)
+- [PyPI](https://pypi.python.org/pypi/Flask-pymysql)

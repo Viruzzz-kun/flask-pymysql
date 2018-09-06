@@ -1,22 +1,22 @@
 """
-Flask-MySQLdb
+Flask-pymysql
 ----------------
 
-MySQLdb extension for Flask
+pymysql extension for Flask
 """
 from setuptools import setup
 
 
 setup(
-    name='Flask-MySQLdb',
+    name='Flask-pymysql',
     version='0.2.0',
-    url='https://github.com/admiralobvious/flask-mysqldb',
+    url='https://github.com/Viruzzz-kun/flask-pymysql',
     license='MIT',
-    author='Alexandre Ferland',
-    author_email='aferlandqc@gmail.com',
-    description='MySQLdb extension for Flask',
+    author='Mikhsql Malkov, Alexandre Ferland',
+    author_email='viruzzz-kun@gmail.com',
+    description='pymysql extension for Flask',
     long_description=__doc__,
-    packages=['flask_mysqldb'],
+    packages=['flask_pymysql'],
     zip_safe=False,
     include_package_data=True,
     platforms='any',

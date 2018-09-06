@@ -1,5 +1,5 @@
-import MySQLdb
-from MySQLdb import cursors
+import pymysql
+from pymysql import cursors
 from flask import _app_ctx_stack, current_app
 
 
@@ -47,10 +47,10 @@ class MySQL(object):
             kwargs['user'] = current_app.config['MYSQL_USER']
 
         if current_app.config['MYSQL_PASSWORD']:
-            kwargs['passwd'] = current_app.config['MYSQL_PASSWORD']
+            kwargs['password'] = current_app.config['MYSQL_PASSWORD']
 
         if current_app.config['MYSQL_DB']:
-            kwargs['db'] = current_app.config['MYSQL_DB']
+            kwargs['database'] = current_app.config['MYSQL_DB']
 
         if current_app.config['MYSQL_PORT']:
             kwargs['port'] = current_app.config['MYSQL_PORT']
@@ -78,7 +78,7 @@ class MySQL(object):
         if current_app.config['MYSQL_CURSORCLASS']:
             kwargs['cursorclass'] = getattr(cursors, current_app.config['MYSQL_CURSORCLASS'])
 
-        return MySQLdb.connect(**kwargs)
+        return pymysql.connect(**kwargs)
 
     @property
     def connection(self):
