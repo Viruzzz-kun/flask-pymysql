@@ -1,84 +1,83 @@
-import pymysql
-from pymysql import cursors
-from flask import _app_ctx_stack, current_app
+import flask
+from flask import (
+    _app_ctx_stack,
+)
 
 
 class MySQL(object):
 
     def __init__(self, app=None):
         self.app = app
+        self.config = None
         if app is not None:
             self.init_app(app)
 
-    def init_app(self, app):
-        """Initialize the `app` for use with this
-        :class:`~flask_mysqldb.MySQL` class.
-        This is called automatically if `app` is passed to
-        :meth:`~MySQL.__init__`.
-
-        :param flask.Flask app: the application to configure for use with
-            this :class:`~flask_mysqldb.MySQL` class.
+    def init_app(self, app, prefix='MYSQL_'):
+        # type: (flask.Flask, str) -> None
         """
+        Initialize this class to use the app.
 
-        app.config.setdefault('MYSQL_HOST', 'localhost')
-        app.config.setdefault('MYSQL_USER', None)
-        app.config.setdefault('MYSQL_PASSWORD', None)
-        app.config.setdefault('MYSQL_DB', None)
-        app.config.setdefault('MYSQL_PORT', 3306)
-        app.config.setdefault('MYSQL_UNIX_SOCKET', None)
-        app.config.setdefault('MYSQL_CONNECT_TIMEOUT', 10)
-        app.config.setdefault('MYSQL_READ_DEFAULT_FILE', None)
-        app.config.setdefault('MYSQL_USE_UNICODE', True)
-        app.config.setdefault('MYSQL_CHARSET', 'utf8')
-        app.config.setdefault('MYSQL_SQL_MODE', None)
-        app.config.setdefault('MYSQL_CURSORCLASS', None)
+        :param flask.Flask app: Application to initialize
+        :param str prefix: config prefix
+        """
+        config = self.config = app.config.get_namespace(prefix)
+
+        config.setdefault('host', 'localhost')
+        config.setdefault('user', None)
+        config.setdefault('password', None)
+        config.setdefault('db', None)
+        config.setdefault('port', 3306)
+        config.setdefault('unix_socket', None)
+        config.setdefault('connect_timeout', 10)
+        config.setdefault('read_default_file', None)
+        config.setdefault('use_unicode', True)
+        config.setdefault('charset', 'utf8')
+        config.setdefault('sql_mode', None)
+        config.setdefault('cursorclass', 'Cursor')
+        config.setdefault('driver', 'pymysql')
 
         if hasattr(app, 'teardown_appcontext'):
             app.teardown_appcontext(self.teardown)
 
+    def connect_pymysql(self):
+        import pymysql
+
+        return pymysql.connect(
+            host=self.config['host'],
+            port=self.config['port'],
+            database=self.config['db'],
+            user=self.config['user'],
+            password=self.config['password'],
+            unix_socket=self.config['unix_socket'],
+            connect_timeout=self.config['connect_timeout'],
+            read_default_file=self.config['read_default_file'],
+            use_unicode=self.config['use_unicode'],
+            charset=self.config['charset'],
+            sql_mode=self.config['sql_mode'],
+            cursorclass=getattr(pymysql.cursors, self.config['cursorclass']),
+        )
+
+    def connect_cymysql(self):
+        import cymysql
+
+        return cymysql.connect(
+            host=self.config['host'],
+            port=self.config['port'],
+            database=self.config['db'],
+            user=self.config['user'],
+            passwd=self.config['password'],
+            unix_socket=self.config['unix_socket'],
+            connect_timeout=self.config['connect_timeout'],
+            read_default_file=self.config['read_default_file'],
+            use_unicode=self.config['use_unicode'],
+            charset=self.config['charset'],
+            sql_mode=self.config['sql_mode'],
+            cursorclass=getattr(cymysql.cursors, self.config['cursorclass']),
+        )
+
     @property
     def connect(self):
-        kwargs = {}
-
-        if current_app.config['MYSQL_HOST']:
-            kwargs['host'] = current_app.config['MYSQL_HOST']
-
-        if current_app.config['MYSQL_USER']:
-            kwargs['user'] = current_app.config['MYSQL_USER']
-
-        if current_app.config['MYSQL_PASSWORD']:
-            kwargs['password'] = current_app.config['MYSQL_PASSWORD']
-
-        if current_app.config['MYSQL_DB']:
-            kwargs['database'] = current_app.config['MYSQL_DB']
-
-        if current_app.config['MYSQL_PORT']:
-            kwargs['port'] = current_app.config['MYSQL_PORT']
-
-        if current_app.config['MYSQL_UNIX_SOCKET']:
-            kwargs['unix_socket'] = current_app.config['MYSQL_UNIX_SOCKET']
-
-        if current_app.config['MYSQL_CONNECT_TIMEOUT']:
-            kwargs['connect_timeout'] = \
-                current_app.config['MYSQL_CONNECT_TIMEOUT']
-
-        if current_app.config['MYSQL_READ_DEFAULT_FILE']:
-            kwargs['read_default_file'] = \
-                current_app.config['MYSQL_READ_DEFAULT_FILE']
-
-        if current_app.config['MYSQL_USE_UNICODE']:
-            kwargs['use_unicode'] = current_app.config['MYSQL_USE_UNICODE']
-
-        if current_app.config['MYSQL_CHARSET']:
-            kwargs['charset'] = current_app.config['MYSQL_CHARSET']
-
-        if current_app.config['MYSQL_SQL_MODE']:
-            kwargs['sql_mode'] = current_app.config['MYSQL_SQL_MODE']
-
-        if current_app.config['MYSQL_CURSORCLASS']:
-            kwargs['cursorclass'] = getattr(cursors, current_app.config['MYSQL_CURSORCLASS'])
-
-        return pymysql.connect(**kwargs)
+        return getattr(self, 'connect_' + self.config['driver'])()
 
     @property
     def connection(self):
