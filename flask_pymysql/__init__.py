@@ -63,7 +63,7 @@ class MySQL(object):
         return cymysql.connect(
             host=self.config['host'],
             port=self.config['port'],
-            database=self.config['db'],
+            db=self.config['db'],
             user=self.config['user'],
             passwd=self.config['password'],
             unix_socket=self.config['unix_socket'],
