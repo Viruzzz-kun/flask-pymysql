@@ -1,7 +1,24 @@
 import flask
 from flask import (
-    _app_ctx_stack,
+    current_app,
 )
+from werkzeug.local import (
+    LocalProxy,
+    LocalStack,
+)
+
+
+def _get_current_connection():
+    if not _stack.top:
+        ext: MySQL = current_app.extensions.get('flask_pymysql')
+        if not ext:
+            return None
+        _stack.push(ext.connect)
+    return _stack.top
+
+
+_stack = LocalStack()
+connection = LocalProxy(_get_current_connection)
 
 
 class MySQL(object):
@@ -38,6 +55,7 @@ class MySQL(object):
 
         if hasattr(app, 'teardown_appcontext'):
             app.teardown_appcontext(self.teardown)
+        app.extensions['flask_pymysql'] = self
 
     def connect_pymysql(self):
         import pymysql
@@ -86,14 +104,17 @@ class MySQL(object):
         :return: Bound MySQL connection object if successful or ``None`` if
             unsuccessful.
         """
+        if not _stack.top:
+            _stack.push(self.connect)
+        return _stack.top
 
-        ctx = _app_ctx_stack.top
-        if ctx is not None:
-            if not hasattr(ctx, 'mysql_db'):
-                ctx.mysql_db = self.connect
-            return ctx.mysql_db
+    @staticmethod
+    def teardown(_):
+        if conn := _stack.top:
+            conn.close()
 
-    def teardown(self, exception):
-        ctx = _app_ctx_stack.top
-        if hasattr(ctx, 'mysql_db'):
-            ctx.mysql_db.close()
+
+__all__ = [
+    'connection',
+    'MySQL',
+]
